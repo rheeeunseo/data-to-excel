@@ -1,0 +1,10 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+dist/
+build/
+exports/
+.vscode/
+postgres_data/
+*.xlsx
