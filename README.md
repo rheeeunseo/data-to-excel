@@ -2,7 +2,7 @@
 
 > 대용량 주문 데이터를 엑셀 파일로 추출·다운로드하는 웹 페이지
 
-PostgreSQL에 저장된 10만 건 이상의 주문 데이터를 청크 단위로 처리해 엑셀을 생성하고, 실시간 진행 상황을 확인할 수 있습니다.
+PostgreSQL에 저장된 10만 건 이상의 주문 데이터를 청크 단위로 처리해 엑셀을 생성하고, 현재 진행 상황을 확인할 수 있습니다.
 
 ---
 
@@ -10,68 +10,18 @@ PostgreSQL에 저장된 10만 건 이상의 주문 데이터를 청크 단위로
 
 | 기능 | 설명 |
 |------|------|
+| 🗄️ ** 대용량 샘플 데이터 생성** | PostgreSQL generate_series를 활용하여 10만 건의 가상 주문 데이터를 자동 생성 |
 | 📦 **청크 기반 엑셀 생성** | 5,000건 단위로 데이터를 나눠 읽어 메모리 사용량 최소화 |
 | ⚡ **비동기 백그라운드 처리** | FastAPI `BackgroundTasks`로 요청 즉시 응답, 백그라운드에서 작업 수행 |
-| 🔄 **실시간 진행률 추적** | 프론트엔드가 3초마다 폴링해 진행 상태·퍼센트를 실시간 표시 |
+| 🔄 **실시간 진행률 추적** | 프론트엔드가 3초마다 폴링해 진행 상태(퍼센테이지)를 실시간 표시 |
 | 📥 **파일 다운로드** | 작업 완료 후 생성된 엑셀 파일을 바로 다운로드 |
-| 🐳 **Docker 원클릭 실행** | `docker compose up --build` 한 줄로 전체 환경 구동 |
 
----
-
-## 🛠 기술 스택
-
-### Backend
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?logo=python&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
-![OpenPyXL](https://img.shields.io/badge/OpenPyXL-Excel-217346?logo=microsoftexcel&logoColor=white)
-
-### Frontend
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?logo=tailwindcss&logoColor=white)
-![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white)
-
-### Infra
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
-
----
-
-## 🏗 프로젝트 구조
-
-```
-data-to-excel/
-├── 🐳 docker-compose.yml        # 전체 서비스 오케스트레이션
-├── 📁 backend/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── db/
-│   │   └── init.sql             # 10만 건 샘플 주문 데이터
-│   └── app/
-│       ├── main.py              # FastAPI 앱 진입점
-│       ├── models.py            # ORM 모델 (Order, Job)
-│       ├── schemas.py           # Pydantic 스키마
-│       ├── database.py          # DB 연결 및 세션
-│       ├── routers/
-│       │   └── export_jobs.py   # 엑셀 작업 API 엔드포인트
-│       └── tasks/
-│           └── excel.py         # 백그라운드 엑셀 생성 태스크
-└── 📁 frontend/
-    ├── Dockerfile
-    ├── package.json
-    └── src/
-        ├── App.jsx              # 메인 컴포넌트 (진행률·다운로드 UI)
-        ├── api.js               # Axios 클라이언트
-        └── main.jsx
-```
 
 ---
 
 ## 🚀 빠른 시작
 
-### 🐳 Docker로 실행 (권장)
+### 🐳 Docker로 실행
 
 ```bash
 # 전체 빌드 및 실행
@@ -156,6 +106,56 @@ Docker Compose를 사용하면 아래 변수가 자동으로 설정됩니다.
 
 - **엑셀 출력 파일**: 컨테이너 내부 `/app/exports` → `docker-compose.yml`의 `exports` 볼륨에 마운트
 - **DB 초기화 SQL**: `backend/db/init.sql`
+
+---
+## 🏗 프로젝트 구조
+
+```
+data-to-excel/
+├── 🐳 docker-compose.yml        # 전체 서비스 오케스트레이션
+├── 📁 backend/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── db/
+│   │   └── init.sql             # 10만 건 샘플 주문 데이터
+│   └── app/
+│       ├── main.py              # FastAPI 앱 진입점
+│       ├── models.py            # ORM 모델 (Order, Job)
+│       ├── schemas.py           # Pydantic 스키마
+│       ├── database.py          # DB 연결 및 세션
+│       ├── routers/
+│       │   └── export_jobs.py   # 엑셀 작업 API 엔드포인트
+│       └── tasks/
+│           └── excel.py         # 백그라운드 엑셀 생성 태스크
+└── 📁 frontend/
+    ├── Dockerfile
+    ├── package.json
+    └── src/
+        ├── App.jsx              # 메인 컴포넌트 (진행률·다운로드 UI)
+        ├── api.js               # Axios 클라이언트
+        └── main.jsx
+```
+
+---
+
+## 🛠 기술 스택
+
+### Backend
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![OpenPyXL](https://img.shields.io/badge/OpenPyXL-Excel-217346?logo=microsoftexcel&logoColor=white)
+
+### Frontend
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white)
+
+### Infra
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
 
 ---
 
